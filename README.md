@@ -112,6 +112,12 @@ npm install
 npm run build
 ```
 
+Docker 构建会额外安装私有 `loomcli`：
+
+- 需要在 `.env` 中提供 `GITHUB_TOKEN`
+- `docker compose build` / `docker compose up --build` 会把该 token 作为 build arg 传给 `Dockerfile`
+- 构建阶段会拉取 `https://github.com/0xLazAI/loomcli.git` 并执行 `npm link`
+
 基础测试：
 
 ```bash
