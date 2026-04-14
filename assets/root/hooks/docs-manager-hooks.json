@@ -1,0 +1,42 @@
+{
+  "hooks": [
+    {
+      "path": "demo_handoff.md",
+      "commands": [
+        {
+          "command": "node",
+          "args": [
+            "{openclawRoot}/skills/agent-messenger/agent-messenger-executor.mjs",
+            "--action",
+            "enqueue_agent",
+            "--agent-id",
+            "demo-worker",
+            "--session-id",
+            "handoff-{projectId}-demo-worker",
+            "--message",
+            "/handle {projectId} {bindingId} {relativePath}"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "demo_receipt.md",
+      "commands": [
+        {
+          "command": "node",
+          "args": [
+            "{openclawRoot}/skills/agent-messenger/agent-messenger-executor.mjs",
+            "--action",
+            "enqueue_agent",
+            "--agent-id",
+            "coordinator",
+            "--session-id",
+            "handoff-{projectId}-coordinator",
+            "--message",
+            "/notify-owner {projectId} {bindingId} status_changed"
+          ]
+        }
+      ]
+    }
+  ]
+}

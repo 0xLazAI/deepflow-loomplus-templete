@@ -1,0 +1,109 @@
+version: "1"
+name: "deepflow"
+
+params:
+  openclaw_version:
+    default: "2026.3.2"
+  dev_agent_model:
+    default: "openai/gpt-5.3-codex"
+  coordinator_telegram_bot_key:
+    required: false
+    default: ""
+  demo_worker_telegram_bot_key:
+    required: false
+    default: ""
+  auth_choice:
+    default: "openai-api-key"
+  allowed_origin:
+    default: "http://deepflow.app"
+
+openclaw:
+  bin: "openclaw"
+  version: "${openclaw_version}"
+  commands:
+    enable_plugin: "openclaw plugins enable telegram"
+  config_patch:
+    models:
+      providers:
+        ollama:
+          baseUrl: "http://127.0.0.1:11434"
+          apiKey: "${openai_api_key}"
+          api: "ollama"
+          models:
+            - id: "kimi-k2.5:cloud"
+              name: "kimi-k2.5:cloud"
+              reasoning: true
+              input:
+                - "text"
+                - "image"
+              cost:
+                input: 0
+                output: 0
+                cacheRead: 0
+                cacheWrite: 0
+              contextWindow: 262144
+    channels:
+      telegram:
+        accounts:
+          coordinator:
+            dmPolicy: "pairing"
+            groupPolicy: "open"
+            streaming: "partial"
+            actions:
+              sendMessage: true
+          demo-worker:
+            dmPolicy: "pairing"
+            groupPolicy: "open"
+            streaming: "partial"
+            actions:
+              sendMessage: true
+  root:
+    assets: "./assets/root"
+    files:
+      - path: "openclaw.json"
+        content: |
+          {
+            "tools": {
+              "profile": "coding"
+            },
+            "gateway": {
+              "mode": "local",
+              "http": {
+                "endpoints": {
+                  "responses": {
+                    "enabled": true
+                  }
+                }
+              },
+              "controlUi": {
+                "allowedOrigins": ["${allowed_origin}"]
+              }
+            }
+          }
+  bootstrap:
+    auth_choice: "${auth_choice}"
+    llm_api_key: "${openai_api_key}"
+
+workspaces:
+  - name: "coordinator"
+    assets: "./assets/coordinator"
+  - name: "demo-worker"
+    assets: "./assets/demo-worker"
+
+agents:
+  - workspace: "coordinator"
+    name: "coordinator"
+    model: "${dev_agent_model}"
+  - workspace: "demo-worker"
+    name: "demo-worker"
+    model: "${dev_agent_model}"
+
+channels:
+  - channel: "telegram"
+    token: "${coordinator_telegram_bot_key}"
+    agent: "coordinator"
+    group_policy: "open"
+  - channel: "telegram"
+    token: "${demo_worker_telegram_bot_key}"
+    agent: "demo-worker"
+    group_policy: "open"

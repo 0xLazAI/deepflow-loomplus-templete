@@ -1,0 +1,32 @@
+{
+  "name": "deepflow-recipe",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "start": "node dist/server.js",
+    "dev": "node scripts/dev.mjs",
+    "dev:server": "tsx src/server.ts",
+    "test:recipe": "node --experimental-vm-modules ./node_modules/jest/bin/jest.js test/recipe-smoke.test.mjs --runInBand --verbose",
+    "test:docs-manager": "node --experimental-vm-modules ./node_modules/jest/bin/jest.js test/docs-manager-canonical.test.mjs --runInBand --verbose",
+    "test:agent-messenger": "node --experimental-vm-modules ./node_modules/jest/bin/jest.js test/agent-messenger.test.mjs --runInBand --verbose",
+    "test:loomplus-cli": "npm run build && node --experimental-vm-modules ./node_modules/jest/bin/jest.js test/loomplus-cli.test.mjs --runInBand --verbose",
+    "test:integration": "npm run build && node test/helpers/run-integration-test.mjs",
+    "test": "node --experimental-vm-modules ./node_modules/jest/bin/jest.js test/recipe-smoke.test.mjs --runInBand --verbose"
+  },
+  "dependencies": {
+    "chokidar": "^4.0.3",
+    "dotenv": "^17.3.1",
+    "express": "^4.21.2",
+    "http-proxy-middleware": "^3.0.3"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.21",
+    "@types/node": "^22.15.18",
+    "jest": "^30.2.0",
+    "telegram-api-mock-server": "^0.1.5",
+    "tsx": "^4.20.3",
+    "typescript": "^5.8.3"
+  }
+}
