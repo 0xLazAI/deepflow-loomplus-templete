@@ -72,7 +72,7 @@ jobs:
         run: |
           set -e
           cd "/opt/deepflow-loomplus/$BRANCH"
-          docker compose -p "deepflow-$BRANCH" up -d --build
+          docker compose -p "loomplus-$BRANCH" up -d --build
 
       - name: Generate nginx config
         run: |
