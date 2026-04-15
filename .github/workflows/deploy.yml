@@ -78,7 +78,9 @@ jobs:
         run: |
           cd "/opt/deepflow-loomplus/$BRANCH"
           chmod +x scripts/deploy-nginx.sh
-          bash scripts/deploy-nginx.sh "$BRANCH"
+          bash scripts/deploy-nginx.sh "$BRANCH" \
+            "/opt/deepflow-loomplus-config.yaml" \
+            "loomplus"
 
       - name: Cleanup unused images
         run: docker image prune -f

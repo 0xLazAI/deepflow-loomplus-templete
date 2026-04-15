@@ -2,9 +2,10 @@
 set -euo pipefail
 
 BRANCH="$1"
-CONFIG="/opt/deepflow-config/config.yaml"
+CONFIG="${2:-/opt/deepflow-config/config.yaml}"
+PROJECT_PREFIX="${3:-deepflow}"
 CONF_DIR="/etc/nginx/conf.d/deepflow"
-TARGET_CONF="$CONF_DIR/$BRANCH.conf"
+TARGET_CONF="$CONF_DIR/${PROJECT_PREFIX}-$BRANCH.conf"
 
 DOMAIN=$(yq -r ".environments[\"$BRANCH\"].domain" "$CONFIG")
 PORT=$(yq -r ".environments[\"$BRANCH\"].port" "$CONFIG")
