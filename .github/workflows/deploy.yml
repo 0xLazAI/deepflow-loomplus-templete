@@ -31,7 +31,7 @@ jobs:
       - name: Validate branch in config.yaml
         run: |
           set -e
-          CONFIG="/opt/deepflow-config/config.yaml"
+          CONFIG="/opt/deepflow-loomplus-config.yaml"
           if ! grep -q "^  $BRANCH:" "$CONFIG"; then
             echo "Branch $BRANCH not declared in config.yaml"
             exit 1
@@ -40,11 +40,11 @@ jobs:
       - name: Prepare target directory
         run: |
           set -e
-          BASE_DIR="/opt/deepflow"
+          BASE_DIR="/opt/deepflow-loomplus"
           TARGET="$BASE_DIR/$BRANCH"
           if [ ! -d "$TARGET/.git" ]; then
             GIT_SSH_COMMAND="ssh -i /root/.ssh/deepflow_runner -o StrictHostKeyChecking=no" \
-            git clone git@github.com:0xLazAI/deepflow.git "$TARGET"
+            git clone git@github.com:0xLazAI/deepflow-loomplus.git "$TARGET"
           fi
           cd "$TARGET"
           git fetch --all
@@ -53,8 +53,8 @@ jobs:
       - name: Generate .env from YAML
         run: |
           set -e
-          CONFIG="/opt/deepflow-config/config.yaml"
-          TARGET="/opt/deepflow/$BRANCH"
+          CONFIG="/opt/deepflow-loomplus-config.yaml"
+          TARGET="/opt/deepflow-loomplus/$BRANCH"
 
           # Read values using yq (proper YAML parsing)
           PORT=$(yq -r ".environments[\"$BRANCH\"].port" "$CONFIG")
@@ -71,12 +71,12 @@ jobs:
       - name: Deploy with Docker Compose
         run: |
           set -e
-          cd "/opt/deepflow/$BRANCH"
+          cd "/opt/deepflow-loomplus/$BRANCH"
           docker compose -p "deepflow-$BRANCH" up -d --build
 
       - name: Generate nginx config
         run: |
-          cd "/opt/deepflow/$BRANCH"
+          cd "/opt/deepflow-loomplus/$BRANCH"
           chmod +x scripts/deploy-nginx.sh
           bash scripts/deploy-nginx.sh "$BRANCH"
 
