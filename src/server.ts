@@ -9,9 +9,12 @@ import { createCommandRunner } from "./runtime/command-runner.js";
 import { createCredentialsSyncService } from "./runtime/credentials-sync.js";
 import { runDeploymentNotify } from "./runtime/deployment-notify.js";
 import { initializeLoomCli } from "./runtime/loom-cli-init.js";
+import { createLoomCliRuntime } from "./runtime/loom-cli.js";
+import { createMissionDeadlineReminder, type MissionDeadlineReminder } from "./runtime/mission-deadline-reminder.js";
 import { createOpenclawGatewayService } from "./runtime/openclaw-gateway.js";
 import { createPmFollowupScheduler, type PmFollowupScheduler } from "./runtime/pm-followup-scheduler.js";
 import { createSpacesSyncService } from "./runtime/spaces-sync.js";
+import { sendTelegramMessage } from "./runtime/telegram.js";
 
 const docsRoot = resolve(process.env.DOCS_ROOT ?? "/tmp/deepflow-assets/docs");
 const watchDir = resolve(process.env.WATCH_DIR ?? "/tmp/deepflow-assets");
@@ -45,6 +48,10 @@ const pmFollowupNotifyScript = resolve(process.cwd(), "assets/coordinator/bin/pm
 const pmFollowupIntervalMs = Number.parseInt(process.env.PM_FOLLOWUP_INTERVAL_SECONDS ?? "60", 10) * 1000;
 const pmFollowupStaleMs = Number.parseInt(process.env.PM_FOLLOWUP_STALE_SECONDS ?? "300", 10) * 1000;
 const pmReceiptTimeoutMs = Number.parseInt(process.env.PM_RECEIPT_TIMEOUT_STALE_SECONDS ?? "900", 10) * 1000;
+const missionReminderIntervalMs = Number.parseInt(process.env.MISSION_DEADLINE_REMINDER_INTERVAL_SECONDS ?? "3600", 10) * 1000;
+const missionReminderWindowMs = Number.parseInt(process.env.MISSION_DEADLINE_REMINDER_WINDOW_HOURS ?? "12", 10) * 60 * 60 * 1000;
+const missionReminderStatePath = resolve(process.env.MISSION_DEADLINE_REMINDER_STATE_PATH ?? "/tmp/deepflow-assets/runtime/mission-deadline-reminder/state.json");
+const missionReminderBotToken = process.env.CLAWCHEF_VAR_COORDINATOR_TELEGRAM_BOT_KEY ?? "";
 const workspaceNames = [
   "coordinator",
   "demo-worker",
@@ -52,6 +59,7 @@ const workspaceNames = [
 
 let shuttingDown = false;
 let pmFollowupScheduler: PmFollowupScheduler | null = null;
+let missionDeadlineReminder: MissionDeadlineReminder | null = null;
 
 const runCommand = createCommandRunner(awsRegion);
 
@@ -161,6 +169,29 @@ async function main(): Promise<void> {
   });
   pmFollowupScheduler.start();
 
+  if (!missionReminderBotToken) {
+    console.log("[mission-reminder] CLAWCHEF_VAR_COORDINATOR_TELEGRAM_BOT_KEY not set, skip");
+  } else {
+    missionDeadlineReminder = createMissionDeadlineReminder({
+      intervalMs: missionReminderIntervalMs,
+      reminderWindowMs: missionReminderWindowMs,
+      statePath: missionReminderStatePath,
+      loomClient: createLoomCliRuntime(),
+      sendMessage: async ({ chatId, text, parseMode }) => {
+        await sendTelegramMessage({
+          token: missionReminderBotToken,
+          chatId,
+          text,
+          parseMode,
+        });
+      },
+    });
+    missionDeadlineReminder.start();
+    void missionDeadlineReminder.runNow().catch((error) => {
+      console.error(error instanceof Error ? `[mission-reminder] ${error.message}` : String(error));
+    });
+  }
+
   void runNotifyIfConfigured();
 }
 
@@ -177,6 +208,10 @@ async function shutdown(server: ReturnType<typeof app.listen>): Promise<void> {
   if (pmFollowupScheduler) {
     pmFollowupScheduler.stop();
     pmFollowupScheduler = null;
+  }
+  if (missionDeadlineReminder) {
+    missionDeadlineReminder.stop();
+    missionDeadlineReminder = null;
   }
 
   await gateway.stop();

@@ -71,6 +71,9 @@ describe("loom+ cli api", () => {
             title: "Follow tonight trend",
             type: "coordination_start",
             sourceInput: "Tonight follow this trend before tomorrow morning.",
+            content: {
+              telegramChatId: "-1001234567890",
+            },
             initiator: "owner:jerry",
             affectedScope: ["content", "design"],
             requiredGates: ["create_task_confirmation"],
@@ -85,6 +88,7 @@ describe("loom+ cli api", () => {
       const issueJson = await createIssueResponse.json();
       expect(issueJson.result.currentStatus).toBe("pending_confirmation");
       expect(issueJson.result.requiredGates).toEqual(["create_task_confirmation"]);
+      expect(issueJson.result.content).toEqual({ telegramChatId: "-1001234567890" });
 
       const issueRoot = path.join(
         docsRoot,

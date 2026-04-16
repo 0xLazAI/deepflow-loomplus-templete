@@ -56,6 +56,7 @@ export type CoordinationIssue = {
   title: string;
   type: CoordinationType;
   sourceInput: string;
+  content: Record<string, unknown>;
   initiator: string;
   currentStatus: CoordinationStatus;
   affectedScope: string[];
@@ -89,6 +90,7 @@ export type CreateCoordinationIssueInput = {
   title: string;
   type: CoordinationType;
   sourceInput: string;
+  content?: Record<string, unknown>;
   initiator?: string;
   affectedScope?: string[];
   requiredGates?: string[];
@@ -103,6 +105,7 @@ export type UpdateCoordinationIssueInput = {
   title?: string;
   summary?: string;
   currentStatus?: CoordinationStatus;
+  content?: Record<string, unknown>;
   requiredGates?: string[];
   assignees?: string[];
   deadline?: string;
@@ -282,6 +285,7 @@ export function createLoomPlusService(options: LoomPlusServiceOptions) {
       title: input.title.trim(),
       type: input.type,
       sourceInput: input.sourceInput.trim(),
+      content: sanitizeObject(input.content),
       initiator: (input.initiator ?? "unknown").trim() || "unknown",
       currentStatus: initialStatus,
       affectedScope: sanitizeList(input.affectedScope),
@@ -323,6 +327,7 @@ export function createLoomPlusService(options: LoomPlusServiceOptions) {
       title: input.title !== undefined ? input.title.trim() : issue.title,
       summary: input.summary !== undefined ? input.summary.trim() : issue.summary,
       currentStatus: nextStatus,
+      content: input.content !== undefined ? sanitizeObject(input.content) : issue.content,
       requiredGates: input.requiredGates !== undefined ? sanitizeList(input.requiredGates) : issue.requiredGates,
       assignees: input.assignees !== undefined ? sanitizeList(input.assignees) : issue.assignees,
       deadline: input.deadline !== undefined ? input.deadline.trim() : issue.deadline,
@@ -528,6 +533,13 @@ function sanitizeList(items: string[] | undefined): string[] {
   return (items ?? []).map((item) => String(item).trim()).filter((item) => item.length > 0);
 }
 
+function sanitizeObject(item: Record<string, unknown> | undefined): Record<string, unknown> {
+  if (!item || typeof item !== "object" || Array.isArray(item)) {
+    return {};
+  }
+  return JSON.parse(JSON.stringify(item)) as Record<string, unknown>;
+}
+
 function nowIso(): string {
   return new Date().toISOString();
 }
@@ -564,6 +576,7 @@ function buildArtifactContents(issue: CoordinationIssue): Record<(typeof artifac
       `- Type: ${issue.type}`,
       `- Initiator: ${issue.initiator}`,
       `- Source Input: ${issue.sourceInput}`,
+      `- Content: ${JSON.stringify(issue.content)}`,
       `- Summary: ${issue.summary}`,
       `- Deadline: ${issue.deadline || "unset"}`,
     ].join("\n"),

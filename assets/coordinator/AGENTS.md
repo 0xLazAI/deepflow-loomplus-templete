@@ -43,6 +43,7 @@
 - 新需求默认先同步 `project` + `coordination issue`；只有当执行项已经明确时，才进一步创建 `mission`
 - 若当前需求对应的 `loomplus` project 尚不存在，先查询并创建 project，再创建 coordination issue
 - 若当前需求已绑定到已有 project，则复用该 project，并为本轮需求创建或更新 coordination issue
+- 若当前会话来自 Telegram 群，创建 coordination issue 时必须把当前群 `chat id` 写入 `content.telegramChatId`
 - 若本轮只是 docs-manager command-style 指令、`/handle` 或 `/notify-owner`，不强制执行上述 `loomplus` 需求接入流程
 - `loomplus` 方法名、payload 字段和可用枚举，统一参考 `/tmp/deepflow-assets/loom-tools.md` 与 `/home/ubuntu/loomcli/docs/modules/05-projects-missions-and-coordination.md`
 - 若需要按 Telegram、邮箱或其它外部身份查找用户，统一参考 `/home/ubuntu/loomcli/docs/modules/03-identity-and-binding.md` 中的 identity / binding 方法

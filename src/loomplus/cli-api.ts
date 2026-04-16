@@ -139,6 +139,7 @@ function buildTools(): ToolDefinition[] {
         title: stringProp(true, "Issue title"),
         type: enumProp(true, "Coordination issue type", [...coordinationTypes]),
         sourceInput: stringProp(true, "Raw input that triggered the issue"),
+        content: objectProp(false, "Structured issue payload"),
         initiator: stringProp(false, "Initiator id or label"),
         affectedScope: arrayProp(false, "Affected scopes"),
         requiredGates: arrayProp(false, "Human confirmation gates"),
@@ -152,6 +153,7 @@ function buildTools(): ToolDefinition[] {
         title: readString(args.title, "title"),
         type: readString(args.type, "type") as CoordinationType,
         sourceInput: readString(args.sourceInput, "sourceInput"),
+        content: readOptionalObject(args.content),
         initiator: readOptionalString(args.initiator),
         affectedScope: readOptionalStringArray(args.affectedScope, "affectedScope"),
         requiredGates: readOptionalStringArray(args.requiredGates, "requiredGates"),
@@ -169,6 +171,7 @@ function buildTools(): ToolDefinition[] {
         title: stringProp(false, "Issue title"),
         summary: stringProp(false, "Issue summary"),
         currentStatus: enumProp(false, "Coordination issue status", [...coordinationStatuses]),
+        content: objectProp(false, "Structured issue payload"),
         requiredGates: arrayProp(false, "Human confirmation gates"),
         assignees: arrayProp(false, "Target owners"),
         deadline: stringProp(false, "Deadline string"),
@@ -181,6 +184,7 @@ function buildTools(): ToolDefinition[] {
         title: readOptionalString(args.title),
         summary: readOptionalString(args.summary),
         currentStatus: readOptionalString(args.currentStatus) as CoordinationStatus | undefined,
+        content: readOptionalObject(args.content),
         requiredGates: readOptionalStringArray(args.requiredGates, "requiredGates"),
         assignees: readOptionalStringArray(args.assignees, "assignees"),
         deadline: readOptionalString(args.deadline),
@@ -281,6 +285,10 @@ function arrayProp(required: boolean, description: string): ToolProperty {
   return { type: "array", required, description };
 }
 
+function objectProp(required: boolean, description: string): ToolProperty {
+  return { type: "object", required, description };
+}
+
 function enumProp(required: boolean, description: string, values: string[]): ToolProperty {
   return {
     type: `enum<${values.join("|")}>`,
@@ -319,4 +327,14 @@ function readOptionalStringArray(value: unknown, field: string): string[] | unde
     }
     return item.trim();
   });
+}
+
+function readOptionalObject(value: unknown): Record<string, unknown> | undefined {
+  if (value === undefined || value === null) {
+    return undefined;
+  }
+  if (typeof value !== "object" || Array.isArray(value)) {
+    throw new Error("Expected object value");
+  }
+  return value as Record<string, unknown>;
 }

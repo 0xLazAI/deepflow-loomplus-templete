@@ -36,12 +36,13 @@ agent 间消息、owner notify 和基于 binding 的直接消息发送，统一�
 推荐方法：
 - project 查询：`loom run get_project_id_by_name --json '{"name":"Project Alpha"}'`
 - project 创建：`loom run create_project --json '{"name":"Project Alpha","description":"CLI created"}'`
-- coordination 创建：`loom run create_coordination_issue --json '{"projectId":"project_xxx","title":"Daily sync follow-up","summary":"Short summary","type":"COORDINATION_START","sourceInput":"Original incoming text"}'`
+- coordination 创建：`loom run create_coordination_issue --json '{"projectId":"project_xxx","title":"Daily sync follow-up","summary":"Short summary","type":"COORDINATION_START","sourceInput":"Original incoming text","content":{"telegramChatId":"-1001234567890"}}'`
 - mission 创建：`loom run create_mission --json '{"projectId":"project_xxx","title":"Ship feature","description":"Optional mission description","assigneeEmail":"owner@example.com","assigneePlatform":"telegram","assigneePlatformId":"123456","deadline":"2026-04-14","priority":"P2"}'`
 
 需求接入规则：
 - 当用户首次提出一个新需求时，必须先做 project 查询；没有匹配 project 时创建 project
 - 接住需求后，必须创建或更新 coordination issue，至少带上 `title`、`summary`、`type`、`sourceInput` 与 `projectId`
+- 若当前会话是 Telegram 群，创建 coordination issue 时必须在 `content.telegramChatId` 写入当前群 `chat id`
 - 若需求已经明确拆成可执行动作，再创建 mission；不要在需求仍模糊时过早创建大量 mission
 - 若 mission 已经明确负责人，创建或更新 mission 时必须写入 assignee 字段，不得创建“已知负责人但未 assign”的 mission
 - mission assignee 字段优先级：`assigneeId` > `assigneeEmail`，若负责人来自 Telegram/Slack 等外部账号，再补 `assigneePlatform` 与 `assigneePlatformId`
