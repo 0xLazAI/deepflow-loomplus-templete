@@ -12,7 +12,6 @@ RUN test -n "$GITHUB_TOKEN" \
   && git clone "https://x-access-token:${GITHUB_TOKEN}@github.com/0xLazAI/loomcli.git" /tmp/loomcli \
   && npm --prefix /tmp/loomcli install \
   && npm --prefix /tmp/loomcli link \
-  && rm -rf /tmp/loomcli
 RUN npm install
 RUN npm run build
 
