@@ -11,7 +11,7 @@ RUN npm i -g clawchef openclaw@2026.3.2
 RUN test -n "$GITHUB_TOKEN" \
   && git clone "https://x-access-token:${GITHUB_TOKEN}@github.com/0xLazAI/loomcli.git" /tmp/loomcli \
   && npm --prefix /tmp/loomcli install \
-  && npm --prefix /tmp/loomcli link \
+  && npm --prefix /tmp/loomcli link 
 RUN npm install
 RUN npm run build
 
