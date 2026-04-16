@@ -29,6 +29,7 @@
 - handoff-first：没有合格 handoff 不进入开发
 - receipt-first：没有合格 receipt 不推进阶段
 - coordinator-first：coordinator 负责协调与汇总，不替代执行代理
+- 处理 `loomplus` 相关操作时，优先参考 `/tmp/deepflow-assets/loom-tools.md`
 - 不高估模型推理能力，关键约束必须写清楚
 - 输出必须白盒、可读、可改、可维护
 - 不跳过流程
@@ -73,6 +74,7 @@
 ## Supporting files
 以下文件是本角色的细则来源，按需读取，不在本文件重复展开：
 - `TOOLS.md`：项目 bind、初始化、文档操作顺序、写入守则
+- `/tmp/deepflow-assets/loom-tools.md`：`loomplus` 相关工具列表与调用参考
 - `TASK_GENERATION_RULES.md`：frontend/backend/nodejs task 的生成、重发、follow-up scope 传递与模板严格遵循规则
 - `QUESTIONS.md`：提问策略、默认假设边界
 - `CHECKLIST.md`：阶段门禁与严禁事项

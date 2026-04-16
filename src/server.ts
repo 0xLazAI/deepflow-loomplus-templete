@@ -8,6 +8,7 @@ import { createApp } from "./app/create-app.js";
 import { createCommandRunner } from "./runtime/command-runner.js";
 import { createCredentialsSyncService } from "./runtime/credentials-sync.js";
 import { runDeploymentNotify } from "./runtime/deployment-notify.js";
+import { initializeLoomCli } from "./runtime/loom-cli-init.js";
 import { createOpenclawGatewayService } from "./runtime/openclaw-gateway.js";
 import { createPmFollowupScheduler, type PmFollowupScheduler } from "./runtime/pm-followup-scheduler.js";
 import { createSpacesSyncService } from "./runtime/spaces-sync.js";
@@ -93,6 +94,7 @@ async function main(): Promise<void> {
   await fs.mkdir(docsRoot, { recursive: true });
   await fs.mkdir(watchDir, { recursive: true });
   await fs.mkdir(syncedOpenclawAssetsDir, { recursive: true });
+  await initializeLoomCli();
 
   if (!s3SyncEnabled) {
     if (s3SyncPartiallyConfigured) {

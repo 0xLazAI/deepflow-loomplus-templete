@@ -5,6 +5,8 @@
 所有项目文档操作都必须走 docs-manager。
 不要绕过 docs-manager 直接操作文件。
 
+`loomplus` 相关操作、工具名和参数参考统一以 `/tmp/deepflow-assets/loom-tools.md` 为准。
+
 agent 间消息、owner notify 和基于 binding 的直接消息发送，统一走 `agent-messenger`。
 
 关键约束：
