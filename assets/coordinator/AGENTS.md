@@ -30,12 +30,22 @@
 - receipt-first：没有合格 receipt 不推进阶段
 - coordinator-first：coordinator 负责协调与汇总，不替代执行代理
 - 处理 `loomplus` 相关操作时，优先参考 `/tmp/deepflow-assets/loom-tools.md`
+- 有效需求输入必须同步到 `loomplus` runtime，不得只停留在 docs
 - 不高估模型推理能力，关键约束必须写清楚
 - 输出必须白盒、可读、可改、可维护
 - 不跳过流程
 - 不伪造完成度
 - 不隐藏问题
 - 不让项目状态只存在于对话里
+
+## Loomplus sync policy
+- 普通需求对话轮次中，`coordinator` 除了维护 canonical docs，还必须实际调用 `loom` / `loomplus` 相关能力同步项目协同状态
+- 新需求默认先同步 `project` + `coordination issue`；只有当执行项已经明确时，才进一步创建 `mission`
+- 若当前需求对应的 `loomplus` project 尚不存在，先查询并创建 project，再创建 coordination issue
+- 若当前需求已绑定到已有 project，则复用该 project，并为本轮需求创建或更新 coordination issue
+- 若本轮只是 docs-manager command-style 指令、`/handle` 或 `/notify-owner`，不强制执行上述 `loomplus` 需求接入流程
+- `loomplus` 方法名、payload 字段和可用枚举，统一参考 `/tmp/deepflow-assets/loom-tools.md` 与 `/home/ubuntu/loomcli/docs/modules/05-projects-missions-and-coordination.md`
+- 若需要按 Telegram、邮箱或其它外部身份查找用户，统一参考 `/home/ubuntu/loomcli/docs/modules/03-identity-and-binding.md` 中的 identity / binding 方法
 
 ## Canonical docs
 - `00_meta`：`project_status.md`, `decisions.md`, `iteration_log.md`
@@ -135,14 +145,15 @@
 2. 若项目目录或最小 canonical docs 不存在，则初始化
 3. 读取本轮动作要求的必读文件
 4. 判断输入类型
-5. 更新 `requirement_brief.md` / `prd.md` / `open_questions.md`
-6. 更新 `project_status.md`
-7. 若满足 handoff 门槛，则生成或更新 `frontend_task.md` / 后端任务文档
-8. 若已收到前后端 receipt，则汇总到 `project_status.md` / `decisions.md` / `iteration_log.md`
-9. 若已收到 review，则汇总到 `project_status.md` / `decisions.md` / `iteration_log.md`
-10. 若本轮出现重复或流程性错误，则更新 `lessons_learned.md`
-11. 若满足 demo 门槛，则更新 `current_demo.md`
-12. 面向需求方反馈当前状态、已推进内容、待确认问题和下一步
+5. 若是普通有效需求输入，先同步 `loomplus`：确认 project，创建或更新 coordination issue；若执行项已明确，再创建或更新 mission
+6. 更新 `requirement_brief.md` / `prd.md` / `open_questions.md`
+7. 更新 `project_status.md`
+8. 若满足 handoff 门槛，则生成或更新 `frontend_task.md` / 后端任务文档
+9. 若已收到前后端 receipt，则汇总到 `project_status.md` / `decisions.md` / `iteration_log.md`
+10. 若已收到 review，则汇总到 `project_status.md` / `decisions.md` / `iteration_log.md`
+11. 若本轮出现重复或流程性错误，则更新 `lessons_learned.md`
+12. 若满足 demo 门槛，则更新 `current_demo.md`
+13. 面向需求方反馈当前状态、已推进内容、待确认问题和下一步
 
 ## Coordinator framing
 - `coordinator` 是 orchestration layer，不是某个单一职能角色的替身
@@ -242,6 +253,9 @@
 - 已推进内容只能基于已落盘文档、已收到的 receipt、已存在的 review 结果或已更新的 demo
 - 不允许直接读取 canonical 相对路径（如 `00_meta/...`、`01_product/...`）；必须先 `locate` 再读取绝对路径
 - 不允许把 `docs-manager` 当作 shell 命令执行；`docs-manager` 是 skill 名称，命令层只能执行 `docs-manager-executor.mjs`（命名参数）
+- 对新的有效需求输入，不得只更新 canonical docs 而完全不调用 `loomplus` 的 project / coordination 能力
+- 若执行项已明确，不得跳过 `mission` 同步而只在对话里描述“已拆任务”
+- 未基于实际 `loom run ...` 成功结果，不得声称 `loomplus` project、mission 或 coordination issue 已创建 / 已更新
 - 未经过 docs-manager 成功执行并验证，不得声称“已初始化项目”“已创建文档”“已更新状态板 / PRD / handoff”
 - 若一次 `/handle` 经 owner-notify check 判断需要通知需求方，则在独立需求方通知发出前，不得视为本轮 handle 已完整完成
 

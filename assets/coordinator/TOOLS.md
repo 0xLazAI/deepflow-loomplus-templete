@@ -6,6 +6,7 @@
 不要绕过 docs-manager 直接操作文件。
 
 `loomplus` 相关操作、工具名和参数参考统一以 `/tmp/deepflow-assets/loom-tools.md` 为准。
+`loomplus` 的 project / mission / coordination issue 方法与 payload 细节，还要对齐 `/home/ubuntu/loomcli/docs/modules/05-projects-missions-and-coordination.md`。
 
 agent 间消息、owner notify 和基于 binding 的直接消息发送，统一走 `agent-messenger`。
 
@@ -13,6 +14,62 @@ agent 间消息、owner notify 和基于 binding 的直接消息发送，统一�
 - `docs-manager` 是 skill 名称，不是 shell 可执行命令。
 - 不允许执行 `docs-manager ...`。
 - 若需要执行命令，必须使用 `node ~/.openclaw/skills/docs-manager/docs-manager-executor.mjs --action <action> --binding-id <bindingId> ...`（只允许命名参数）。
+
+## Loomplus runtime calls
+普通需求输入不是只写 docs，还必须同步到 `loomplus` runtime。
+
+用户身份查询与绑定相关方法，参考 `/home/ubuntu/loomcli/docs/modules/03-identity-and-binding.md`。
+
+标准顺序：
+1. 先确认当前需求对应的 `loomplus` project 是否存在
+2. 若不存在，调用 `get_project_id_by_name` 或 `list_projects` 检查后，再调用 `create_project`
+3. 对本轮需求创建或更新 `coordination issue`
+4. 若本轮需求已经明确到可执行任务，再创建或更新 `mission`
+5. 后续状态推进时，按实际进展更新 project / coordination issue / mission 状态
+
+默认规则：
+- 新需求：至少同步 `project` + `coordination issue`
+- 已有项目下的新一轮明确执行项：再同步 `mission`
+- 纯进度同步、推进、关闭：使用 `update_project_status`、`update_coordination_issue`、`update_mission`
+- 纯 docs-manager command-style 指令、`/handle`、`/notify-owner`：不强制走上述需求接入链路
+
+推荐方法：
+- project 查询：`loom run get_project_id_by_name --json '{"name":"Project Alpha"}'`
+- project 创建：`loom run create_project --json '{"name":"Project Alpha","description":"CLI created"}'`
+- coordination 创建：`loom run create_coordination_issue --json '{"projectId":"project_xxx","title":"Daily sync follow-up","summary":"Short summary","type":"COORDINATION_START","sourceInput":"Original incoming text"}'`
+- mission 创建：`loom run create_mission --json '{"projectId":"project_xxx","title":"Ship feature","description":"Optional mission description","deadline":"2026-04-14","priority":"P2"}'`
+
+需求接入规则：
+- 当用户首次提出一个新需求时，必须先做 project 查询；没有匹配 project 时创建 project
+- 接住需求后，必须创建或更新 coordination issue，至少带上 `title`、`summary`、`type`、`sourceInput` 与 `projectId`
+- 若需求已经明确拆成可执行动作，再创建 mission；不要在需求仍模糊时过早创建大量 mission
+- 可用状态值、priority 和 issue type 只能使用文档中允许的枚举值；不要自造值
+- 不得只说“已同步到 loomplus”而没有实际执行对应 `loom run ...` 调用
+
+## Loomplus identity and binding calls
+当需要根据 Telegram、邮箱或批量平台账号查找用户时，必须使用 `loom` 的 identity / binding 方法，不要自行猜测 Loom+ 用户身份。
+
+推荐方法：
+- 绑定外部账号：`loom run bind_user_info --json '{"bindingCode":"your_binding_code","platform":"telegram","platformId":"123456"}'`
+- 按单个外部账号查邮箱：`loom run get_user_email_by_platform_id --json '{"platform":"telegram","platformId":"123456"}'`
+- 按多个外部账号批量查邮箱：`loom run get_user_emails_by_ids --json '{"platform":"telegram","ids":["123456","789012"]}'`
+- 按外部账号查已分配任务：`loom run list_assigned_missions_by_platform_id --json '{"platform":"telegram","platformId":"123456"}'`
+
+使用规则：
+- 已知 Telegram 用户 id、Slack 用户 id 等外部平台身份时，优先用 `get_user_email_by_platform_id`
+- 需要一次查多个 Telegram 或其他平台用户时，用 `get_user_emails_by_ids`
+- 需要确认某个外部账号当前领到哪些 mission 时，用 `list_assigned_missions_by_platform_id`
+- 若只有邮箱、没有平台 id，不要伪造 platform lookup 结果；只能基于已知 loomplus 数据继续推进
+- `platform` 只能使用文档允许的枚举值，如 `telegram`、`wechat`、`slack`、`discord`
+- 未基于实际 `loom run ...` 返回结果，不得声称已识别某个 Telegram 用户对应的 Loom+ 邮箱或任务归属
+
+示例：
+- 用户说“帮我跟进今晚热点，明早前给一版英文 thread、一版中文解读和封面图”
+  - 先确认或创建 project
+  - 再创建一个 `type=COORDINATION_START` 的 coordination issue
+  - 若已经明确了具体交付项和截止时间，再创建对应 mission
+- 用户只是问“现在进度到哪了”
+  - 优先读取当前 docs 与已有 loomplus 状态；若只是汇报，不必新建 mission
 
 ## Command-style docs-manager passthrough
 若用户输入以下 command-style 指令之一，必须直接按 docs-manager 命令语义执行，不得按普通 coordinator 对话或项目流程重新解释：
