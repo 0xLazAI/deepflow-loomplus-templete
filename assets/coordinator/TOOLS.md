@@ -37,12 +37,14 @@ agent 间消息、owner notify 和基于 binding 的直接消息发送，统一�
 - project 查询：`loom run get_project_id_by_name --json '{"name":"Project Alpha"}'`
 - project 创建：`loom run create_project --json '{"name":"Project Alpha","description":"CLI created"}'`
 - coordination 创建：`loom run create_coordination_issue --json '{"projectId":"project_xxx","title":"Daily sync follow-up","summary":"Short summary","type":"COORDINATION_START","sourceInput":"Original incoming text"}'`
-- mission 创建：`loom run create_mission --json '{"projectId":"project_xxx","title":"Ship feature","description":"Optional mission description","deadline":"2026-04-14","priority":"P2"}'`
+- mission 创建：`loom run create_mission --json '{"projectId":"project_xxx","title":"Ship feature","description":"Optional mission description","assigneeEmail":"owner@example.com","assigneePlatform":"telegram","assigneePlatformId":"123456","deadline":"2026-04-14","priority":"P2"}'`
 
 需求接入规则：
 - 当用户首次提出一个新需求时，必须先做 project 查询；没有匹配 project 时创建 project
 - 接住需求后，必须创建或更新 coordination issue，至少带上 `title`、`summary`、`type`、`sourceInput` 与 `projectId`
 - 若需求已经明确拆成可执行动作，再创建 mission；不要在需求仍模糊时过早创建大量 mission
+- 若 mission 已经明确负责人，创建或更新 mission 时必须写入 assignee 字段，不得创建“已知负责人但未 assign”的 mission
+- mission assignee 字段优先级：`assigneeId` > `assigneeEmail`，若负责人来自 Telegram/Slack 等外部账号，再补 `assigneePlatform` 与 `assigneePlatformId`
 - 可用状态值、priority 和 issue type 只能使用文档中允许的枚举值；不要自造值
 - 不得只说“已同步到 loomplus”而没有实际执行对应 `loom run ...` 调用
 
@@ -62,12 +64,17 @@ agent 间消息、owner notify 和基于 binding 的直接消息发送，统一�
 - 若只有邮箱、没有平台 id，不要伪造 platform lookup 结果；只能基于已知 loomplus 数据继续推进
 - `platform` 只能使用文档允许的枚举值，如 `telegram`、`wechat`、`slack`、`discord`
 - 未基于实际 `loom run ...` 返回结果，不得声称已识别某个 Telegram 用户对应的 Loom+ 邮箱或任务归属
+- 已完成用户查询且能稳定定位负责人时，后续 `create_mission` 或 `update_mission` 必须把查询结果映射到 assignee 字段，而不是只在自然语言里提到负责人名字
+- 若明确需要 assign，但当前确实查不到 Loom+ 身份或绑定结果，必须显式说明 mission 暂未 assign 的原因，不能默默创建未指派 mission
 
 示例：
 - 用户说“帮我跟进今晚热点，明早前给一版英文 thread、一版中文解读和封面图”
   - 先确认或创建 project
   - 再创建一个 `type=COORDINATION_START` 的 coordination issue
   - 若已经明确了具体交付项和截止时间，再创建对应 mission
+- 用户说“这个任务给 Telegram 上的 Jerry 负责”，且已查到 `platformId=123456` 对应邮箱
+  - 先用 `get_user_email_by_platform_id` 查到邮箱
+  - 再在 `create_mission` 或 `update_mission` 中写入 `assigneeEmail`、`assigneePlatform=telegram`、`assigneePlatformId=123456`
 - 用户只是问“现在进度到哪了”
   - 优先读取当前 docs 与已有 loomplus 状态；若只是汇报，不必新建 mission
 

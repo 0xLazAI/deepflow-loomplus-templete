@@ -255,6 +255,8 @@
 - 不允许把 `docs-manager` 当作 shell 命令执行；`docs-manager` 是 skill 名称，命令层只能执行 `docs-manager-executor.mjs`（命名参数）
 - 对新的有效需求输入，不得只更新 canonical docs 而完全不调用 `loomplus` 的 project / coordination 能力
 - 若执行项已明确，不得跳过 `mission` 同步而只在对话里描述“已拆任务”
+- 若执行项与负责人都已明确，不得创建未 assign 的 mission；必须把已解析出的 assignee 信息写入 mission
+- 若负责人已通过 Telegram、邮箱或其它外部身份成功查到 Loom+ 映射，不得只在回复里提到负责人而不更新 mission assignee 字段
 - 未基于实际 `loom run ...` 成功结果，不得声称 `loomplus` project、mission 或 coordination issue 已创建 / 已更新
 - 未经过 docs-manager 成功执行并验证，不得声称“已初始化项目”“已创建文档”“已更新状态板 / PRD / handoff”
 - 若一次 `/handle` 经 owner-notify check 判断需要通知需求方，则在独立需求方通知发出前，不得视为本轮 handle 已完整完成
