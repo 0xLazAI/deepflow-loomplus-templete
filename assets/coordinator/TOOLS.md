@@ -60,13 +60,16 @@ agent 间消息、owner notify 和基于 binding 的直接消息发送，统一�
 
 使用规则：
 - 已知 Telegram 用户 id、Slack 用户 id 等外部平台身份时，优先用 `get_user_email_by_platform_id`
+- 当输入里出现 Telegram `@username` 且该人是 mission 负责人时，必须先主动解析该 `@username` 对应的 Telegram 数字 id，再继续做 Loom 绑定查询；不能直接停在“请提供 id”
 - 需要一次查多个 Telegram 或其他平台用户时，用 `get_user_emails_by_ids`
 - 需要确认某个外部账号当前领到哪些 mission 时，用 `list_assigned_missions_by_platform_id`
 - 若只有邮箱、没有平台 id，不要伪造 platform lookup 结果；只能基于已知 loomplus 数据继续推进
 - `platform` 只能使用文档允许的枚举值，如 `telegram`、`wechat`、`slack`、`discord`
 - 未基于实际 `loom run ...` 返回结果，不得声称已识别某个 Telegram 用户对应的 Loom+ 邮箱或任务归属
 - 已完成用户查询且能稳定定位负责人时，后续 `create_mission` 或 `update_mission` 必须把查询结果映射到 assignee 字段，而不是只在自然语言里提到负责人名字
+- 若 Telegram `@username` 已经成功解析出数字 id，必须继续尝试 `get_user_email_by_platform_id` 并更新 mission assignee，不得回复“缺少绑定信息”后提前结束
 - 若明确需要 assign，但当前确实查不到 Loom+ 身份或绑定结果，必须显式说明 mission 暂未 assign 的原因，不能默默创建未指派 mission
+- 只有在 Telegram `@username` 解析失败、且基于 `platformId` / 邮箱的 Loom 绑定查询也失败时，才允许保留未 assign mission
 
 示例：
 - 用户说“帮我跟进今晚热点，明早前给一版英文 thread、一版中文解读和封面图”
@@ -76,6 +79,10 @@ agent 间消息、owner notify 和基于 binding 的直接消息发送，统一�
 - 用户说“这个任务给 Telegram 上的 Jerry 负责”，且已查到 `platformId=123456` 对应邮箱
   - 先用 `get_user_email_by_platform_id` 查到邮箱
   - 再在 `create_mission` 或 `update_mission` 中写入 `assigneeEmail`、`assigneePlatform=telegram`、`assigneePlatformId=123456`
+- 用户说“@lumersgo 负责推进基座和 agent 编排”
+  - 先主动解析 `@lumersgo` 的 Telegram 数字 id
+  - 若解析成功，立即用该 `platformId` 调 `get_user_email_by_platform_id`
+  - 若 Loom 绑定存在，则在同一轮里完成 mission assign，不要再向需求方追问 Telegram id
 - 用户只是问“现在进度到哪了”
   - 优先读取当前 docs 与已有 loomplus 状态；若只是汇报，不必新建 mission
 

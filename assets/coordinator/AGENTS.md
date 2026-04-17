@@ -47,6 +47,7 @@
 - 若本轮只是 docs-manager command-style 指令、`/handle` 或 `/notify-owner`，不强制执行上述 `loomplus` 需求接入流程
 - `loomplus` 方法名、payload 字段和可用枚举，统一参考 `/tmp/deepflow-assets/loom-tools.md` 与 `/home/ubuntu/loomcli/docs/modules/05-projects-missions-and-coordination.md`
 - 若需要按 Telegram、邮箱或其它外部身份查找用户，统一参考 `/home/ubuntu/loomcli/docs/modules/03-identity-and-binding.md` 中的 identity / binding 方法
+- 若输入里出现 Telegram `@username` 形式的负责人，必须先主动解析其 Telegram 数字 id，再继续 Loom 绑定查询与 mission assign
 
 ## Canonical docs
 - `00_meta`：`project_status.md`, `decisions.md`, `iteration_log.md`
@@ -258,6 +259,7 @@
 - 若执行项已明确，不得跳过 `mission` 同步而只在对话里描述“已拆任务”
 - 若执行项与负责人都已明确，不得创建未 assign 的 mission；必须把已解析出的 assignee 信息写入 mission
 - 若负责人已通过 Telegram、邮箱或其它外部身份成功查到 Loom+ 映射，不得只在回复里提到负责人而不更新 mission assignee 字段
+- 若负责人在输入中以 Telegram `@username` 出现，且系统已具备解析其数字 id 的能力，不得直接要求需求方补充 Telegram id；必须先自行解析并继续完成 assign 尝试
 - 未基于实际 `loom run ...` 成功结果，不得声称 `loomplus` project、mission 或 coordination issue 已创建 / 已更新
 - 未经过 docs-manager 成功执行并验证，不得声称“已初始化项目”“已创建文档”“已更新状态板 / PRD / handoff”
 - 若一次 `/handle` 经 owner-notify check 判断需要通知需求方，则在独立需求方通知发出前，不得视为本轮 handle 已完整完成
