@@ -52,6 +52,8 @@ agent 间消息、owner notify 和基于 binding 的直接消息发送，统一�
 ## Loomplus identity and binding calls
 当需要根据 Telegram、邮箱或批量平台账号查找用户时，必须使用 `loom` 的 identity / binding 方法，不要自行猜测 Loom+ 用户身份。
 
+Telegram 数字 `user id` 不来自 `loom` 查询，而是优先来自当前 Telegram 入站消息元数据。`loom` 只用于拿到 `platformId` 之后做绑定查询。
+
 推荐方法：
 - 绑定外部账号：`loom run bind_user_info --json '{"bindingCode":"your_binding_code","platform":"telegram","platformId":"123456"}'`
 - 按单个外部账号查邮箱：`loom run get_user_email_by_platform_id --json '{"platform":"telegram","platformId":"123456"}'`
@@ -59,6 +61,11 @@ agent 间消息、owner notify 和基于 binding 的直接消息发送，统一�
 - 按外部账号查已分配任务：`loom run list_assigned_missions_by_platform_id --json '{"platform":"telegram","platformId":"123456"}'`
 
 使用规则：
+- Telegram 负责人识别顺序固定如下：先读当前消息元数据，再做 `loom` 查询
+- 当前发言人负责时：优先使用当前消息发送者的 Telegram `from.id`
+- reply 某人负责时：优先使用 `reply_to_message.from.id`
+- 被 `@mention` 的人负责时：优先使用消息元数据中该被 mention 用户的 Telegram `user.id`
+- 禁止把 Telegram `@username` 直接当成 `loom` 的 `platformId` 去查绑定
 - 已知 Telegram 用户 id、Slack 用户 id 等外部平台身份时，优先用 `get_user_email_by_platform_id`
 - 当输入里出现 Telegram `@username` 且该人是 mission 负责人时，必须先主动解析该 `@username` 对应的 Telegram 数字 id，再继续做 Loom 绑定查询；不能直接停在“请提供 id”
 - 需要一次查多个 Telegram 或其他平台用户时，用 `get_user_emails_by_ids`
@@ -70,6 +77,7 @@ agent 间消息、owner notify 和基于 binding 的直接消息发送，统一�
 - 若 Telegram `@username` 已经成功解析出数字 id，必须继续尝试 `get_user_email_by_platform_id` 并更新 mission assignee，不得回复“缺少绑定信息”后提前结束
 - 若明确需要 assign，但当前确实查不到 Loom+ 身份或绑定结果，必须显式说明 mission 暂未 assign 的原因，不能默默创建未指派 mission
 - 只有在 Telegram `@username` 解析失败、且基于 `platformId` / 邮箱的 Loom 绑定查询也失败时，才允许保留未 assign mission
+- 只有在当前发言人、reply 对象、被 mention 用户这三条消息元数据路径都拿不到 Telegram 数字 id，且后续 Loom 绑定查询也失败时，才允许向需求方追问更多身份信息
 
 示例：
 - 用户说“帮我跟进今晚热点，明早前给一版英文 thread、一版中文解读和封面图”
@@ -80,9 +88,15 @@ agent 间消息、owner notify 和基于 binding 的直接消息发送，统一�
   - 先用 `get_user_email_by_platform_id` 查到邮箱
   - 再在 `create_mission` 或 `update_mission` 中写入 `assigneeEmail`、`assigneePlatform=telegram`、`assigneePlatformId=123456`
 - 用户说“@lumersgo 负责推进基座和 agent 编排”
-  - 先主动解析 `@lumersgo` 的 Telegram 数字 id
+  - 先从当前 Telegram 消息元数据里读取被 mention 用户的 Telegram 数字 id；不要直接拿 `@lumersgo` 去查 `loom`
   - 若解析成功，立即用该 `platformId` 调 `get_user_email_by_platform_id`
   - 若 Loom 绑定存在，则在同一轮里完成 mission assign，不要再向需求方追问 Telegram id
+- 用户说“这条任务我来跟”，当前发言人就是负责人
+  - 直接使用当前消息发送者的 Telegram `from.id`
+  - 再用该 `platformId` 调 `get_user_email_by_platform_id` 并完成 assign
+- 用户回复某人的消息并说“这条交给他”，reply 对象就是负责人
+  - 优先读取 `reply_to_message.from.id`
+  - 再继续做 Loom 绑定查询与 mission assign
 - 用户只是问“现在进度到哪了”
   - 优先读取当前 docs 与已有 loomplus 状态；若只是汇报，不必新建 mission
 
