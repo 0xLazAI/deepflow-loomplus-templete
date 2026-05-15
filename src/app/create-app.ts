@@ -49,7 +49,7 @@ export function createApp(options: CreateAppOptions): express.Application {
         res.status(400).json({ error: { message: "accessToken is required" } });
         return;
       }
-      if (hasCliAuth && !allowedCliTokens.has(accessToken)) {
+      if (!hasCliAuth || !allowedCliTokens.has(accessToken)) {
         res.status(401).json({ error: { message: "Invalid access token" } });
         return;
       }
@@ -533,9 +533,6 @@ function isAuthorizedCliRequest(req: Request, allowedCliTokens: Set<string>, has
   const token = authorization.slice("Bearer ".length).trim();
   if (!token) {
     return false;
-  }
-  if (!hasCliAuth) {
-    return true;
   }
   return allowedCliTokens.has(token);
 }

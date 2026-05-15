@@ -1,0 +1,34 @@
+spec:
+  name: loom-plus-agent
+  services:
+    - name: coordinator
+      git:
+        branch: main
+        repo_clone_url: https://github.com/0xLazAI/deepflow-loomplus-templete.git
+      dockerfile_path: Dockerfile
+      http_port: 3000
+      instance_count: 1
+      instance_size_slug: apps-s-1vcpu-1gb
+      envs:
+        - key: WEB_PORT
+          value: "3000"
+          scope: RUN_TIME
+        - key: CLAWCHEF_VAR_COORDINATOR_TELEGRAM_BOT_KEY
+          value: "paste-your-telegram-bot-token"
+          type: SECRET
+          scope: RUN_TIME
+        - key: LOOM_TOKEN
+          value: "paste-your-loom-access-token"
+          type: SECRET
+          scope: RUN_TIME
+        - key: CLAWCHEF_VAR_OPENAI_API_KEY
+          value: "paste-your-openai-api-key"
+          type: SECRET
+          scope: RUN_TIME
+        - key: CLAWCHEF_VAR_ALLOWED_ORIGIN
+          value: "https://your-loomplus-domain.example"
+          scope: RUN_TIME
+        - key: DOCS_AUTH_TOKEN
+          value: "choose-a-docs-password"
+          type: SECRET
+          scope: RUN_TIME

@@ -13,7 +13,7 @@
     "test:agent-messenger": "node --experimental-vm-modules ./node_modules/jest/bin/jest.js test/agent-messenger.test.mjs --runInBand --verbose",
     "test:loomplus-cli": "npm run build && node --experimental-vm-modules ./node_modules/jest/bin/jest.js test/loomplus-cli.test.mjs --runInBand --verbose",
     "test:integration": "npm run build && node test/helpers/run-integration-test.mjs",
-    "test": "node --experimental-vm-modules ./node_modules/jest/bin/jest.js test/recipe-smoke.test.mjs --runInBand --verbose"
+    "test": "node --experimental-vm-modules ./node_modules/jest/bin/jest.js test/recipe-smoke.test.mjs test/deploy-config.test.mjs --runInBand --verbose"
   },
   "dependencies": {
     "chokidar": "^4.0.3",

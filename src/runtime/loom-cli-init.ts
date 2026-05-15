@@ -22,14 +22,19 @@ export type LoomCliInitOptions = {
 const defaultOutputPath = "/tmp/deepflow-assets/loom-tools.md";
 
 export async function initializeLoomCli(options: LoomCliInitOptions = {}): Promise<void> {
-  const loomServer = options.loomServer?.trim() ?? process.env.LOOM_SERVER?.trim() ?? "";
+  const loomServer =
+    options.loomServer?.trim() ??
+    process.env.LOOM_SERVER?.trim() ??
+    process.env.NEXTAUTH_URL?.trim() ??
+    process.env.CLAWCHEF_VAR_ALLOWED_ORIGIN?.trim() ??
+    "";
   const loomToken = options.loomToken?.trim() ?? process.env.LOOM_TOKEN?.trim() ?? "";
   const outputPath = options.outputPath ?? defaultOutputPath;
   const runCommand = options.runCommand ?? runLoomCommand;
   const logger = options.logger ?? defaultLogger;
 
   if (!loomServer) {
-    throw new Error("LOOM_SERVER is required to initialize loomcli");
+    throw new Error("LOOM_SERVER, NEXTAUTH_URL, or CLAWCHEF_VAR_ALLOWED_ORIGIN is required to initialize loomcli");
   }
   if (!loomToken) {
     throw new Error("LOOM_TOKEN is required to initialize loomcli");
