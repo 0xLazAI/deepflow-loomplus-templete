@@ -44,4 +44,12 @@ describe("deploy owner configuration", () => {
     expect(dockerignore).toContain(".git");
     expect(dockerignore).toContain("deepflow-loomplus-config.yaml");
   });
+
+  test("coordinator Telegram account accepts direct chats after one-click deploy", async () => {
+    const recipe = await readFile(path.join(projectRoot, "recipe.yaml"), "utf8");
+
+    expect(recipe).toContain('dmPolicy: "open"');
+    expect(recipe).toContain("allowFrom:");
+    expect(recipe).toContain('- "*"');
+  });
 });
