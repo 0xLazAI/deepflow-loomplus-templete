@@ -54,6 +54,7 @@ const missionReminderStatePath = resolve(process.env.MISSION_DEADLINE_REMINDER_S
 const missionReminderBotToken = process.env.CLAWCHEF_VAR_COORDINATOR_TELEGRAM_BOT_KEY ?? "";
 const workspaceNames = [
   "coordinator",
+  "google-meeting",
   "demo-worker",
 ] as const;
 

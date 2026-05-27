@@ -130,6 +130,7 @@ DigitalOcean 会在创建 app 时提示填写环境变量。必填变量如下�
 | 环境变量 | 作用 | 示例/来源 |
 | --- | --- | --- |
 | `CLAWCHEF_VAR_COORDINATOR_TELEGRAM_BOT_KEY` | Coordinator agent 使用的 Telegram bot token。 | 从 BotFather 获取。 |
+| `CLAWCHEF_VAR_GOOGLE_MEETING_TELEGRAM_BOT_KEY` | Google Meeting agent 使用的 Telegram bot token。留空时不启用该 agent 的 Telegram 入口。 | 从 BotFather 获取。 |
 | `LOOM_TOKEN` | Loom+ 团队 access token，供容器内 `loomcli login` 使用。 | 在 Loom+ 的 Agents/Access Token 页面生成。 |
 | `CLAWCHEF_VAR_OPENAI_API_KEY` | OpenClaw/agent 使用的 OpenAI API key。 | `sk-...` |
 | `CLAWCHEF_VAR_ALLOWED_ORIGIN` | OpenClaw control UI 允许的前端来源。通常填 Loom+ 服务地址；未设置 `LOOM_SERVER/NEXTAUTH_URL` 时也会作为 `loomcli login` 的 server URL。 | `https://your-loomplus-domain.example` |

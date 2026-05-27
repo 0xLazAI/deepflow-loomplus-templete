@@ -7,8 +7,9 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const projectRoot = path.resolve(__dirname, "..");
 
-const requiredDeployEnvKeys = [
+const deployEnvKeys = [
   "CLAWCHEF_VAR_COORDINATOR_TELEGRAM_BOT_KEY",
+  "CLAWCHEF_VAR_GOOGLE_MEETING_TELEGRAM_BOT_KEY",
   "LOOM_TOKEN",
   "CLAWCHEF_VAR_OPENAI_API_KEY",
   "CLAWCHEF_VAR_ALLOWED_ORIGIN",
@@ -23,7 +24,7 @@ describe("deploy owner configuration", () => {
 
     expect(template).toContain("0xLazAI/deepflow-loomplus-templete");
     expect(template).toContain("Dockerfile");
-    for (const key of requiredDeployEnvKeys) {
+    for (const key of deployEnvKeys) {
       expect(template).toContain(key);
     }
   });
@@ -51,5 +52,23 @@ describe("deploy owner configuration", () => {
     expect(recipe).toContain('dmPolicy: "open"');
     expect(recipe).toContain("allowFrom:");
     expect(recipe).toContain('- "*"');
+  });
+
+  test("google meeting agent is configured beside coordinator", async () => {
+    const recipe = await readFile(path.join(projectRoot, "recipe.yaml"), "utf8");
+    const agentGuide = await readFile(path.join(projectRoot, "assets", "google-meeting", "AGENTS.md"), "utf8");
+    const toolsGuide = await readFile(path.join(projectRoot, "assets", "google-meeting", "TOOLS.md"), "utf8");
+
+    expect(recipe).toContain('google_meeting_telegram_bot_key');
+    expect(recipe).toContain('name: "google-meeting"');
+    expect(recipe).toContain('agent: "google-meeting"');
+    expect(agentGuide).toContain("Google Meeting Agent");
+    expect(toolsGuide).toContain("create_google_meeting");
+    expect(toolsGuide).toContain("update_google_meeting_by_link");
+    expect(toolsGuide).toContain("delete_google_meeting_by_link");
+    expect(toolsGuide).toContain("scheduling_create_session");
+    expect(toolsGuide).toContain("list_upcoming_meetings");
+    expect(toolsGuide).toContain("get_user_email_by_platform_id");
+    expect(toolsGuide).toContain("get_user_emails_by_ids");
   });
 });

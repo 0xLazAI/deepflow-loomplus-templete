@@ -17,6 +17,10 @@ spec:
           value: "paste-your-telegram-bot-token"
           type: SECRET
           scope: RUN_TIME
+        - key: CLAWCHEF_VAR_GOOGLE_MEETING_TELEGRAM_BOT_KEY
+          value: ""
+          type: SECRET
+          scope: RUN_TIME
         - key: LOOM_TOKEN
           value: "paste-your-loom-access-token"
           type: SECRET
