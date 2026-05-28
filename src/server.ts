@@ -20,6 +20,7 @@ const envAliases = [
   ["ALLOWED_ORIGIN", "CLAWCHEF_VAR_ALLOWED_ORIGIN"],
   ["COORDINATOR_TELEGRAM_BOT_KEY", "CLAWCHEF_VAR_COORDINATOR_TELEGRAM_BOT_KEY"],
   ["GOOGLE_MEETING_TELEGRAM_BOT_KEY", "CLAWCHEF_VAR_GOOGLE_MEETING_TELEGRAM_BOT_KEY"],
+  ["PROJECT_MANAGER_TELEGRAM_BOT_KEY", "CLAWCHEF_VAR_PROJECT_MANAGER_TELEGRAM_BOT_KEY"],
   ["OPENAI_API_KEY", "CLAWCHEF_VAR_OPENAI_API_KEY"],
 ] as const;
 
@@ -73,6 +74,7 @@ const missionReminderBotToken = process.env.COORDINATOR_TELEGRAM_BOT_KEY ?? "";
 const workspaceNames = [
   "coordinator",
   "google-meeting",
+  "project-manager",
   "demo-worker",
 ] as const;
 

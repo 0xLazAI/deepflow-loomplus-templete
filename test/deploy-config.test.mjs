@@ -10,6 +10,7 @@ const projectRoot = path.resolve(__dirname, "..");
 const deployEnvKeys = [
   "COORDINATOR_TELEGRAM_BOT_KEY",
   "GOOGLE_MEETING_TELEGRAM_BOT_KEY",
+  "PROJECT_MANAGER_TELEGRAM_BOT_KEY",
   "LOOM_TOKEN",
   "OPENAI_API_KEY",
   "ALLOWED_ORIGIN",
@@ -71,5 +72,31 @@ describe("deploy owner configuration", () => {
     expect(toolsGuide).toContain("list_upcoming_meetings");
     expect(toolsGuide).toContain("get_user_email_by_platform_id");
     expect(toolsGuide).toContain("get_user_emails_by_ids");
+  });
+
+  test("project manager agent is configured beside coordinator", async () => {
+    const recipe = await readFile(path.join(projectRoot, "recipe.yaml"), "utf8");
+    const agentGuide = await readFile(path.join(projectRoot, "assets", "project-manager", "AGENTS.md"), "utf8");
+    const toolsGuide = await readFile(path.join(projectRoot, "assets", "project-manager", "TOOLS.md"), "utf8");
+
+    expect(recipe).toContain("project_manager_telegram_bot_key");
+    expect(recipe).toContain('name: "project-manager"');
+    expect(recipe).toContain('agent: "project-manager"');
+    expect(agentGuide).toContain("Project Manager Agent");
+    expect(agentGuide).toContain("create a project when no matching project exists");
+    expect(toolsGuide).toContain("list_projects");
+    expect(toolsGuide).toContain("get_project_id_by_name");
+    expect(toolsGuide).toContain("create_project");
+    expect(toolsGuide).toContain("update_project");
+    expect(toolsGuide).toContain("update_project_status");
+    expect(toolsGuide).toContain("delete_project");
+    expect(toolsGuide).toContain("list_project_members");
+    expect(toolsGuide).toContain("list_missions");
+    expect(toolsGuide).toContain("get_mission");
+    expect(toolsGuide).toContain("create_mission_by_project_name");
+    expect(toolsGuide).toContain("list_missions_by_deadline");
+    expect(toolsGuide).toContain("update_mission");
+    expect(toolsGuide).toContain("delete_mission");
+    expect(toolsGuide).toContain("get_mission_logs");
   });
 });
