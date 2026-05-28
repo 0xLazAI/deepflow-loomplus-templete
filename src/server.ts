@@ -16,6 +16,24 @@ import { createPmFollowupScheduler, type PmFollowupScheduler } from "./runtime/p
 import { createSpacesSyncService } from "./runtime/spaces-sync.js";
 import { sendTelegramMessage } from "./runtime/telegram.js";
 
+const envAliases = [
+  ["ALLOWED_ORIGIN", "CLAWCHEF_VAR_ALLOWED_ORIGIN"],
+  ["COORDINATOR_TELEGRAM_BOT_KEY", "CLAWCHEF_VAR_COORDINATOR_TELEGRAM_BOT_KEY"],
+  ["GOOGLE_MEETING_TELEGRAM_BOT_KEY", "CLAWCHEF_VAR_GOOGLE_MEETING_TELEGRAM_BOT_KEY"],
+  ["OPENAI_API_KEY", "CLAWCHEF_VAR_OPENAI_API_KEY"],
+] as const;
+
+for (const [publicKey, clawchefKey] of envAliases) {
+  const publicValue = process.env[publicKey]?.trim();
+  const clawchefValue = process.env[clawchefKey]?.trim();
+  if (publicValue && !clawchefValue) {
+    process.env[clawchefKey] = publicValue;
+  }
+  if (clawchefValue && !publicValue) {
+    process.env[publicKey] = clawchefValue;
+  }
+}
+
 const docsRoot = resolve(process.env.DOCS_ROOT ?? "/tmp/deepflow-assets/docs");
 const watchDir = resolve(process.env.WATCH_DIR ?? "/tmp/deepflow-assets");
 const syncedOpenclawAssetsDir = resolve(process.env.SYNCED_OPENCLAW_ASSETS_DIR ?? "/tmp/deepflow-assets/openclaw");
@@ -51,9 +69,10 @@ const pmReceiptTimeoutMs = Number.parseInt(process.env.PM_RECEIPT_TIMEOUT_STALE_
 const missionReminderIntervalMs = Number.parseInt(process.env.MISSION_DEADLINE_REMINDER_INTERVAL_SECONDS ?? "3600", 10) * 1000;
 const missionReminderWindowMs = Number.parseInt(process.env.MISSION_DEADLINE_REMINDER_WINDOW_HOURS ?? "12", 10) * 60 * 60 * 1000;
 const missionReminderStatePath = resolve(process.env.MISSION_DEADLINE_REMINDER_STATE_PATH ?? "/tmp/deepflow-assets/runtime/mission-deadline-reminder/state.json");
-const missionReminderBotToken = process.env.CLAWCHEF_VAR_COORDINATOR_TELEGRAM_BOT_KEY ?? "";
+const missionReminderBotToken = process.env.COORDINATOR_TELEGRAM_BOT_KEY ?? "";
 const workspaceNames = [
   "coordinator",
+  "google-meeting",
   "demo-worker",
 ] as const;
 
@@ -170,7 +189,7 @@ async function main(): Promise<void> {
   pmFollowupScheduler.start();
 
   if (!missionReminderBotToken) {
-    console.log("[mission-reminder] CLAWCHEF_VAR_COORDINATOR_TELEGRAM_BOT_KEY not set, skip");
+    console.log("[mission-reminder] COORDINATOR_TELEGRAM_BOT_KEY not set, skip");
   } else {
     missionDeadlineReminder = createMissionDeadlineReminder({
       intervalMs: missionReminderIntervalMs,

@@ -13,19 +13,23 @@ spec:
         - key: WEB_PORT
           value: "3000"
           scope: RUN_TIME
-        - key: CLAWCHEF_VAR_COORDINATOR_TELEGRAM_BOT_KEY
+        - key: COORDINATOR_TELEGRAM_BOT_KEY
           value: "paste-your-telegram-bot-token"
+          type: SECRET
+          scope: RUN_TIME
+        - key: GOOGLE_MEETING_TELEGRAM_BOT_KEY
+          value: ""
           type: SECRET
           scope: RUN_TIME
         - key: LOOM_TOKEN
           value: "paste-your-loom-access-token"
           type: SECRET
           scope: RUN_TIME
-        - key: CLAWCHEF_VAR_OPENAI_API_KEY
+        - key: OPENAI_API_KEY
           value: "paste-your-openai-api-key"
           type: SECRET
           scope: RUN_TIME
-        - key: CLAWCHEF_VAR_ALLOWED_ORIGIN
+        - key: ALLOWED_ORIGIN
           value: "https://your-loomplus-domain.example"
           scope: RUN_TIME
         - key: DOCS_AUTH_TOKEN

@@ -9,6 +9,9 @@ params:
   coordinator_telegram_bot_key:
     required: false
     default: ""
+  google_meeting_telegram_bot_key:
+    required: false
+    default: ""
   demo_worker_telegram_bot_key:
     required: false
     default: ""
@@ -53,6 +56,14 @@ openclaw:
             streaming: "partial"
             actions:
               sendMessage: true
+          google-meeting:
+            dmPolicy: "open"
+            allowFrom:
+              - "*"
+            groupPolicy: "open"
+            streaming: "partial"
+            actions:
+              sendMessage: true
           demo-worker:
             dmPolicy: "pairing"
             groupPolicy: "open"
@@ -89,12 +100,17 @@ openclaw:
 workspaces:
   - name: "coordinator"
     assets: "./assets/coordinator"
+  - name: "google-meeting"
+    assets: "./assets/google-meeting"
   - name: "demo-worker"
     assets: "./assets/demo-worker"
 
 agents:
   - workspace: "coordinator"
     name: "coordinator"
+    model: "${dev_agent_model}"
+  - workspace: "google-meeting"
+    name: "google-meeting"
     model: "${dev_agent_model}"
   - workspace: "demo-worker"
     name: "demo-worker"
@@ -104,6 +120,10 @@ channels:
   - channel: "telegram"
     token: "${coordinator_telegram_bot_key}"
     agent: "coordinator"
+    group_policy: "open"
+  - channel: "telegram"
+    token: "${google_meeting_telegram_bot_key}"
+    agent: "google-meeting"
     group_policy: "open"
   - channel: "telegram"
     token: "${demo_worker_telegram_bot_key}"
