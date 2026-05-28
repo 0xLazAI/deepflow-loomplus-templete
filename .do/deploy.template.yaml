@@ -3,7 +3,7 @@ spec:
   services:
     - name: coordinator
       git:
-        branch: feature/google-meeting-agent
+        branch: main
         repo_clone_url: https://github.com/0xLazAI/deepflow-loomplus-templete.git
       dockerfile_path: Dockerfile
       http_port: 3000

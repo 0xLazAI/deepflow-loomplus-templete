@@ -122,7 +122,7 @@ Docker 构建会额外安装 `loomcli`：
 仓库包含 `.do/deploy.template.yaml`，可通过 DigitalOcean App Platform 的一键部署入口创建服务：
 
 ```text
-https://cloud.digitalocean.com/apps/new?repo=https://github.com/0xLazAI/deepflow-loomplus-templete/tree/feature/google-meeting-agent
+https://cloud.digitalocean.com/apps/new?repo=https://github.com/0xLazAI/deepflow-loomplus-templete/tree/main
 ```
 
 DigitalOcean 会在创建 app 时提示填写环境变量。必填变量如下：
