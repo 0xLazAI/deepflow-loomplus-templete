@@ -54,18 +54,18 @@ function assertNoDocsManagerShellCommandError(logs) {
 
 describe("system integration via telegram mock", () => {
   beforeAll(async () => {
-    expect(process.env.CLAWCHEF_VAR_OPENAI_API_KEY).toBeTruthy();
-    expect(process.env.CLAWCHEF_VAR_COORDINATOR_TELEGRAM_BOT_KEY).toBeTruthy();
+    expect(process.env.OPENAI_API_KEY).toBeTruthy();
+    expect(process.env.COORDINATOR_TELEGRAM_BOT_KEY).toBeTruthy();
 
     const adminBaseUrl = process.env.TELEGRAM_API_MOCK_ADMIN_BASE_URL ?? "http://127.0.0.1:19091";
     const adminToken = process.env.TELEGRAM_API_MOCK_ADMIN_TOKEN;
 
-    state.pmBotToken = String(process.env.CLAWCHEF_VAR_COORDINATOR_TELEGRAM_BOT_KEY);
+    state.pmBotToken = String(process.env.COORDINATOR_TELEGRAM_BOT_KEY);
     state.deploymentNotifyBotToken = process.env.TELEGRAM_NOTIFY_BOT_TOKEN ?? state.pmBotToken;
     state.deploymentNotifyChatId = Number.parseInt(process.env.TELEGRAM_NOTIFY_CHAT_ID ?? "-1001234567890", 10);
     state.telegramChatId = state.deploymentNotifyChatId;
     state.telegramUserId = Number.parseInt(process.env.TELEGRAM_TEST_USER_ID ?? "10001", 10);
-    state.allowedOrigin = String(process.env.CLAWCHEF_VAR_ALLOWED_ORIGIN);
+    state.allowedOrigin = String(process.env.ALLOWED_ORIGIN);
 
     if (!Number.isFinite(state.deploymentNotifyChatId)) {
       throw new Error("TELEGRAM_NOTIFY_CHAT_ID must be a number");

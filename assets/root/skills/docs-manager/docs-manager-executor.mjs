@@ -276,8 +276,12 @@ function buildPublicUrl(origin, relFromDocs) {
   return `${normalizedOrigin}/docs/${relFromDocs}`;
 }
 
+function getAllowedOrigin() {
+  return process.env.ALLOWED_ORIGIN || process.env.CLAWCHEF_VAR_ALLOWED_ORIGIN || "";
+}
+
 function printProjectDocumentsLink(projectCode) {
-  const origin = process.env.CLAWCHEF_VAR_ALLOWED_ORIGIN;
+  const origin = getAllowedOrigin();
   if (!origin) {
     return;
   }
@@ -511,7 +515,7 @@ function replaceFirst(content, from, to) {
 function printWriteLikeResult(targetPath, projectRoot, fallbackVerb) {
   const relFromDocs = toRelativeFromRoot(targetPath, DOCS_ROOT);
   const relFromProject = toRelativeFromRoot(targetPath, projectRoot);
-  const origin = process.env.CLAWCHEF_VAR_ALLOWED_ORIGIN;
+  const origin = getAllowedOrigin();
   if (origin) {
     process.stdout.write(`✅ [${relFromProject}](${buildPublicUrl(origin, relFromDocs)})\n`);
     return;
@@ -602,7 +606,7 @@ async function listDocs(args) {
   }
 
   entries.sort((a, b) => a.name.localeCompare(b.name));
-  const origin = process.env.CLAWCHEF_VAR_ALLOWED_ORIGIN;
+  const origin = getAllowedOrigin();
   for (const entry of entries) {
     const entryPath = path.join(dirPath, entry.name);
     const relFromProject = toRelativeFromRoot(entryPath, projectRoot);
@@ -657,9 +661,9 @@ async function linkDoc(args) {
     fail("file not found");
   }
 
-  const origin = process.env.CLAWCHEF_VAR_ALLOWED_ORIGIN;
+  const origin = getAllowedOrigin();
   if (!origin) {
-    fail("CLAWCHEF_VAR_ALLOWED_ORIGIN is required");
+    fail("ALLOWED_ORIGIN is required");
   }
 
   const relFromDocs = toRelativeFromRoot(targetPath, DOCS_ROOT);

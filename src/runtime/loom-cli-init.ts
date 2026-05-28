@@ -26,6 +26,7 @@ export async function initializeLoomCli(options: LoomCliInitOptions = {}): Promi
     options.loomServer?.trim() ??
     process.env.LOOM_SERVER?.trim() ??
     process.env.NEXTAUTH_URL?.trim() ??
+    process.env.ALLOWED_ORIGIN?.trim() ??
     process.env.CLAWCHEF_VAR_ALLOWED_ORIGIN?.trim() ??
     "";
   const loomToken = options.loomToken?.trim() ?? process.env.LOOM_TOKEN?.trim() ?? "";
@@ -34,7 +35,7 @@ export async function initializeLoomCli(options: LoomCliInitOptions = {}): Promi
   const logger = options.logger ?? defaultLogger;
 
   if (!loomServer) {
-    throw new Error("LOOM_SERVER, NEXTAUTH_URL, or CLAWCHEF_VAR_ALLOWED_ORIGIN is required to initialize loomcli");
+    throw new Error("LOOM_SERVER, NEXTAUTH_URL, or ALLOWED_ORIGIN is required to initialize loomcli");
   }
   if (!loomToken) {
     throw new Error("LOOM_TOKEN is required to initialize loomcli");

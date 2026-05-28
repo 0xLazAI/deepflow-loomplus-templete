@@ -14,6 +14,7 @@ describe("loom cli startup initialization", () => {
 
   afterEach(async () => {
     delete process.env.NEXTAUTH_URL;
+    delete process.env.ALLOWED_ORIGIN;
     delete process.env.CLAWCHEF_VAR_ALLOWED_ORIGIN;
     if (runtimeRoot) {
       await rm(runtimeRoot, { recursive: true, force: true });
@@ -64,7 +65,7 @@ describe("loom cli startup initialization", () => {
           error: () => {},
         },
       }),
-    ).rejects.toThrow("LOOM_SERVER, NEXTAUTH_URL, or CLAWCHEF_VAR_ALLOWED_ORIGIN is required");
+    ).rejects.toThrow("LOOM_SERVER, NEXTAUTH_URL, or ALLOWED_ORIGIN is required");
   });
 
   test("uses NEXTAUTH_URL as the Loom server fallback", async () => {
@@ -90,9 +91,9 @@ describe("loom cli startup initialization", () => {
     });
   });
 
-  test("uses CLAWCHEF_VAR_ALLOWED_ORIGIN as the Loom server fallback", async () => {
+  test("uses ALLOWED_ORIGIN as the Loom server fallback", async () => {
     const calls = [];
-    process.env.CLAWCHEF_VAR_ALLOWED_ORIGIN = "https://loom.example.com";
+    process.env.ALLOWED_ORIGIN = "https://loom.example.com";
 
     await initializeLoomCli({
       loomToken: "secret-token",
@@ -110,6 +111,29 @@ describe("loom cli startup initialization", () => {
     expect(calls[0]).toEqual({
       command: "loom",
       args: ["login", "--server", "https://loom.example.com", "--token", "secret-token"],
+    });
+  });
+
+  test("keeps CLAWCHEF_VAR_ALLOWED_ORIGIN as a backwards-compatible fallback", async () => {
+    const calls = [];
+    process.env.CLAWCHEF_VAR_ALLOWED_ORIGIN = "https://legacy-loom.example.com";
+
+    await initializeLoomCli({
+      loomToken: "secret-token",
+      outputPath: path.join(runtimeRoot, "loom-tools.md"),
+      runCommand: async (command, args) => {
+        calls.push({ command, args });
+        return { stdout: "" };
+      },
+      logger: {
+        info: () => {},
+        error: () => {},
+      },
+    });
+
+    expect(calls[0]).toEqual({
+      command: "loom",
+      args: ["login", "--server", "https://legacy-loom.example.com", "--token", "secret-token"],
     });
   });
 

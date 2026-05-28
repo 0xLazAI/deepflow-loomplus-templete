@@ -122,18 +122,18 @@ Docker 构建会额外安装 `loomcli`：
 仓库包含 `.do/deploy.template.yaml`，可通过 DigitalOcean App Platform 的一键部署入口创建服务：
 
 ```text
-https://cloud.digitalocean.com/apps/new?repo=https://github.com/0xLazAI/deepflow-loomplus-templete/tree/main
+https://cloud.digitalocean.com/apps/new?repo=https://github.com/0xLazAI/deepflow-loomplus-templete/tree/feature/google-meeting-agent
 ```
 
 DigitalOcean 会在创建 app 时提示填写环境变量。必填变量如下：
 
 | 环境变量 | 作用 | 示例/来源 |
 | --- | --- | --- |
-| `CLAWCHEF_VAR_COORDINATOR_TELEGRAM_BOT_KEY` | Coordinator agent 使用的 Telegram bot token。 | 从 BotFather 获取。 |
-| `CLAWCHEF_VAR_GOOGLE_MEETING_TELEGRAM_BOT_KEY` | Google Meeting agent 使用的 Telegram bot token。留空时不启用该 agent 的 Telegram 入口。 | 从 BotFather 获取。 |
+| `COORDINATOR_TELEGRAM_BOT_KEY` | Coordinator agent 使用的 Telegram bot token。 | 从 BotFather 获取。 |
+| `GOOGLE_MEETING_TELEGRAM_BOT_KEY` | Google Meeting agent 使用的 Telegram bot token。留空时不启用该 agent 的 Telegram 入口。 | 从 BotFather 获取。 |
 | `LOOM_TOKEN` | Loom+ 团队 access token，供容器内 `loomcli login` 使用。 | 在 Loom+ 的 Agents/Access Token 页面生成。 |
-| `CLAWCHEF_VAR_OPENAI_API_KEY` | OpenClaw/agent 使用的 OpenAI API key。 | `sk-...` |
-| `CLAWCHEF_VAR_ALLOWED_ORIGIN` | OpenClaw control UI 允许的前端来源。通常填 Loom+ 服务地址；未设置 `LOOM_SERVER/NEXTAUTH_URL` 时也会作为 `loomcli login` 的 server URL。 | `https://your-loomplus-domain.example` |
+| `OPENAI_API_KEY` | OpenClaw/agent 使用的 OpenAI API key。 | `sk-...` |
+| `ALLOWED_ORIGIN` | OpenClaw control UI 允许的前端来源。通常填 Loom+ 服务地址；未设置 `LOOM_SERVER/NEXTAUTH_URL` 时也会作为 `loomcli login` 的 server URL。 | `https://your-loomplus-domain.example` |
 | `DOCS_AUTH_TOKEN` | deepflow 内置 docs 页面和 CLI fallback token。未配置 `LOOMPLUS_CLI_ACCESS_TOKEN(S)` 时也会作为本服务本地 CLI token 的回退值。 | 自行生成一段随机密码。 |
 | `WEB_PORT` | 容器内 Web 服务端口。DigitalOcean 模板默认 `3000`。 | `3000` |
 

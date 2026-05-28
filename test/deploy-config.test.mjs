@@ -8,11 +8,11 @@ const __dirname = path.dirname(__filename);
 const projectRoot = path.resolve(__dirname, "..");
 
 const deployEnvKeys = [
-  "CLAWCHEF_VAR_COORDINATOR_TELEGRAM_BOT_KEY",
-  "CLAWCHEF_VAR_GOOGLE_MEETING_TELEGRAM_BOT_KEY",
+  "COORDINATOR_TELEGRAM_BOT_KEY",
+  "GOOGLE_MEETING_TELEGRAM_BOT_KEY",
   "LOOM_TOKEN",
-  "CLAWCHEF_VAR_OPENAI_API_KEY",
-  "CLAWCHEF_VAR_ALLOWED_ORIGIN",
+  "OPENAI_API_KEY",
+  "ALLOWED_ORIGIN",
   "DOCS_AUTH_TOKEN",
 ];
 
@@ -27,6 +27,7 @@ describe("deploy owner configuration", () => {
     for (const key of deployEnvKeys) {
       expect(template).toContain(key);
     }
+    expect(template).not.toContain("CLAWCHEF_VAR_");
   });
 
   test("Docker build does not require a GitHub token for public dependencies", async () => {
