@@ -25,6 +25,10 @@ spec:
           value: ""
           type: SECRET
           scope: RUN_TIME
+        - key: KNOWLEDGE_MANAGER_TELEGRAM_BOT_KEY
+          value: ""
+          type: SECRET
+          scope: RUN_TIME
         - key: LOOM_TOKEN
           value: "paste-your-loom-access-token"
           type: SECRET

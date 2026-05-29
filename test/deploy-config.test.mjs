@@ -11,6 +11,7 @@ const deployEnvKeys = [
   "COORDINATOR_TELEGRAM_BOT_KEY",
   "GOOGLE_MEETING_TELEGRAM_BOT_KEY",
   "PROJECT_MANAGER_TELEGRAM_BOT_KEY",
+  "KNOWLEDGE_MANAGER_TELEGRAM_BOT_KEY",
   "LOOM_TOKEN",
   "OPENAI_API_KEY",
   "ALLOWED_ORIGIN",
@@ -98,5 +99,26 @@ describe("deploy owner configuration", () => {
     expect(toolsGuide).toContain("update_mission");
     expect(toolsGuide).toContain("delete_mission");
     expect(toolsGuide).toContain("get_mission_logs");
+  });
+
+  test("knowledge manager agent is configured beside coordinator", async () => {
+    const recipe = await readFile(path.join(projectRoot, "recipe.yaml"), "utf8");
+    const agentGuide = await readFile(path.join(projectRoot, "assets", "knowledge-manager", "AGENTS.md"), "utf8");
+    const toolsGuide = await readFile(path.join(projectRoot, "assets", "knowledge-manager", "TOOLS.md"), "utf8");
+
+    expect(recipe).toContain("knowledge_manager_telegram_bot_key");
+    expect(recipe).toContain('name: "knowledge-manager"');
+    expect(recipe).toContain('agent: "knowledge-manager"');
+    expect(agentGuide).toContain("Knowledge Manager Agent");
+    expect(agentGuide).toContain("team wiki memory");
+    expect(toolsGuide).toContain("list_knowledge_bases");
+    expect(toolsGuide).toContain("get_knowledge_base_id");
+    expect(toolsGuide).toContain("create_knowledge_base");
+    expect(toolsGuide).toContain("update_knowledge_base_name");
+    expect(toolsGuide).toContain("upsert_document");
+    expect(toolsGuide).toContain("list_documents");
+    expect(toolsGuide).toContain("delete_document");
+    expect(toolsGuide).toContain("ask_knowledge_base");
+    expect(toolsGuide).toContain("ask_all_knowledge_bases");
   });
 });
