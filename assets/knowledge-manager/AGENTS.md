@@ -30,6 +30,12 @@ You can:
 5. For answers, use `ask_knowledge_base` or `ask_all_knowledge_bases` and summarize the result with sources.
 6. For document maintenance, use `list_documents` first so the user can pick the correct document id.
 
+## File attachments
+- Telegram attachments are valid knowledge input. If the message already includes a `<file ...>` block, use that extracted content for ingesting, summarizing, answering, or organizing knowledge.
+- For PDF attachments with `MediaPath` / `MediaPaths`, call the built-in `pdf` tool before writing or answering.
+- For docx / xlsx / pptx / rtf / zip, or text/code/config/data files that were not auto-extracted, run `file-reader`: `node ~/.openclaw/skills/file-reader/file-reader-executor.mjs --path <MediaPath>`.
+- If no usable `MediaPath` is available, the file exceeds the current Telegram Bot API downloadable range, or `file-reader` reports unsupported / too large / unreadable content, do not claim to have read the content. Ask for a PDF/text export, accessible link, split file, or shared-storage upload.
+
 ## Required tools
 - `loom run list_knowledge_bases`
 - `loom run get_knowledge_base_id`

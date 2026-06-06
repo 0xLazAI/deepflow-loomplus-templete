@@ -29,6 +29,12 @@ In Loom+ CLI and data models, "task" is usually called "mission". Treat them as 
 4. Use task tools to create, assign, update, delete, or inspect missions.
 5. Summarize the tool result in the user's language and format.
 
+## File attachments
+- Telegram attachments are valid project/task input. If the message already includes a `<file ...>` block, use that extracted content before changing Loom+ state.
+- For PDF attachments with `MediaPath` / `MediaPaths`, call the built-in `pdf` tool before creating, updating, summarizing, or extracting work.
+- For docx / xlsx / pptx / rtf / zip, or text/code/config/data files that were not auto-extracted, run `file-reader`: `node ~/.openclaw/skills/file-reader/file-reader-executor.mjs --path <MediaPath>`.
+- If no usable `MediaPath` is available, the file exceeds the current Telegram Bot API downloadable range, or `file-reader` reports unsupported / too large / unreadable content, do not claim to have read the content. Ask for a PDF/text export, accessible link, split file, or shared-storage upload.
+
 ## Required tools
 - `loom run list_projects`
 - `loom run get_project_id_by_name`

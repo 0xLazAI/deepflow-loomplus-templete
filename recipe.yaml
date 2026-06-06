@@ -32,6 +32,14 @@ openclaw:
   commands:
     enable_plugin: "openclaw plugins enable telegram"
   config_patch:
+    agents:
+      defaults:
+        pdfMaxBytesMb: 20
+        pdfMaxPages: 50
+    tools:
+      media:
+        image:
+          maxBytes: 20971520
     models:
       providers:
         ollama:
@@ -53,6 +61,7 @@ openclaw:
               contextWindow: 262144
     channels:
       telegram:
+        mediaMaxMb: 20
         accounts:
           coordinator:
             dmPolicy: "open"
@@ -92,6 +101,35 @@ openclaw:
             streaming: "partial"
             actions:
               sendMessage: true
+    gateway:
+      http:
+        endpoints:
+          responses:
+            enabled: true
+            files:
+              allowedMimes:
+                - "text/plain"
+                - "text/markdown"
+                - "text/html"
+                - "text/csv"
+                - "text/tab-separated-values"
+                - "application/json"
+                - "application/xml"
+                - "text/xml"
+                - "text/yaml"
+                - "application/yaml"
+                - "application/x-yaml"
+                - "application/javascript"
+                - "text/javascript"
+                - "application/pdf"
+              maxBytes: 20971520
+              maxChars: 200000
+              pdf:
+                maxPages: 8
+                maxPixels: 2000000
+                minTextChars: 200
+            images:
+              maxBytes: 10485760
   root:
     assets: "./assets/root"
     files:
@@ -99,14 +137,47 @@ openclaw:
         content: |
           {
             "tools": {
-              "profile": "coding"
+              "profile": "coding",
+              "media": {
+                "image": {
+                  "maxBytes": 20971520
+                }
+              }
             },
             "gateway": {
               "mode": "local",
               "http": {
                 "endpoints": {
                   "responses": {
-                    "enabled": true
+                    "enabled": true,
+                    "files": {
+                      "allowedMimes": [
+                        "text/plain",
+                        "text/markdown",
+                        "text/html",
+                        "text/csv",
+                        "text/tab-separated-values",
+                        "application/json",
+                        "application/xml",
+                        "text/xml",
+                        "text/yaml",
+                        "application/yaml",
+                        "application/x-yaml",
+                        "application/javascript",
+                        "text/javascript",
+                        "application/pdf"
+                      ],
+                      "maxBytes": 20971520,
+                      "maxChars": 200000,
+                      "pdf": {
+                        "maxPages": 8,
+                        "maxPixels": 2000000,
+                        "minTextChars": 200
+                      }
+                    },
+                    "images": {
+                      "maxBytes": 10485760
+                    }
                   }
                 }
               },

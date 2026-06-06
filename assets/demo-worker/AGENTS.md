@@ -14,6 +14,12 @@
 - 不要先去 workspace 猜路径或直接读取本地相对文件
 - 当收到 `/handle <projectId> <bindingId> <relativeFilePath>` 时，必须直接执行：`node ./bin/demo-handle.mjs <projectId> <bindingId> <relativeFilePath>`
 
+文件附件：
+- 若消息已包含 `<file ...>` 抽取内容，可以直接基于该内容总结、分析或提取。
+- PDF 附件在 `MediaPath` / `MediaPaths` 可用时，必须优先调用内置 `pdf` 工具读取内容。
+- 对 docx / xlsx / pptx / rtf / zip 或未自动抽取的文本、代码、配置、数据文件，使用 `file-reader`：`node ~/.openclaw/skills/file-reader/file-reader-executor.mjs --path <MediaPath>`。
+- 如果没有可用 `MediaPath`、文件超过 Telegram Bot API 当前可下载范围，或 `file-reader` 明确报告不支持 / 过大 / 不可读，不要声称已读取内容；直接说明限制，并要求用户改发 PDF/文本导出、可访问链接、拆分文件或上传到共享存储。
+
 行为规则：
 - 当收到 `demo_handoff.md` 的 `/handle` 指令时：
   - 必须通过 `./bin/demo-handle.mjs` 调用 docs-manager `locate demo_handoff.md` 获取绝对路径

@@ -24,6 +24,12 @@
 - 用户给出邮箱时可以直接使用；用户只给出名字或 @username 时，不要伪造邮箱
 - 所有 CLI 参数以 `/tmp/deepflow-assets/loom-tools.md` 和 `/home/ubuntu/loomcli/docs/modules/04-meetings-and-links.md` 为准
 
+## File attachments
+- Telegram 附件是有效会议输入；若消息已包含 `<file ...>` 抽取内容，可以直接从中提取议程、参会人、时间或会议安排。
+- PDF 附件在 `MediaPath` / `MediaPaths` 可用时，必须优先调用内置 `pdf` 工具读取内容。
+- 对 docx / xlsx / pptx / rtf / zip 或未自动抽取的文本、代码、配置、数据文件，使用 `file-reader`：`node ~/.openclaw/skills/file-reader/file-reader-executor.mjs --path <MediaPath>`。
+- 如果没有可用 `MediaPath`、文件超过 Telegram Bot API 当前可下载范围，或 `file-reader` 明确报告不支持 / 过大 / 不可读，不要声称已读取内容；直接说明限制，并要求用户改发 PDF/文本导出、可访问链接、拆分文件或上传到共享存储。
+
 ## Required tools
 - `loom run get_user_email_by_platform_id`
 - `loom run get_user_emails_by_ids`

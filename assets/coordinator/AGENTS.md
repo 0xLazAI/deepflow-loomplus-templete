@@ -38,6 +38,12 @@
 - 不隐藏问题
 - 不让项目状态只存在于对话里
 
+## File attachments
+- Telegram 附件是有效需求输入；若消息已包含 `<file ...>` 抽取内容，可以直接基于该内容澄清需求、建任务或更新 canonical docs。
+- PDF 附件在 `MediaPath` / `MediaPaths` 可用时，必须优先调用内置 `pdf` 工具读取内容。
+- 对 docx / xlsx / pptx / rtf / zip 或未自动抽取的文本、代码、配置、数据文件，使用 `file-reader`：`node ~/.openclaw/skills/file-reader/file-reader-executor.mjs --path <MediaPath>`。
+- 如果没有可用 `MediaPath`、文件超过 Telegram Bot API 当前可下载范围，或 `file-reader` 明确报告不支持 / 过大 / 不可读，不要声称已读取内容；直接说明限制，并要求用户改发 PDF/文本导出、可访问链接、拆分文件或上传到共享存储。
+
 ## Loomplus sync policy
 - 普通需求对话轮次中，`coordinator` 除了维护 canonical docs，还必须实际调用 `loom` / `loomplus` 相关能力同步项目协同状态
 - 新需求默认先同步 `project` + `coordination issue`；只有当执行项已经明确时，才进一步创建 `mission`

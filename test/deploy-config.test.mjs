@@ -40,6 +40,19 @@ describe("deploy owner configuration", () => {
     expect(dockerfile).toContain("https://github.com/0xLazAI/loomcli.git");
   });
 
+  test("Docker image includes file attachment extraction support", async () => {
+    const dockerfile = await readFile(path.join(projectRoot, "Dockerfile"), "utf8");
+    const skillPath = path.join(projectRoot, "assets", "root", "skills", "file-reader", "SKILL.md");
+    const executorPath = path.join(projectRoot, "assets", "root", "skills", "file-reader", "file-reader-executor.mjs");
+    const skill = await readFile(skillPath, "utf8");
+
+    await access(executorPath);
+    expect(dockerfile).toContain("unzip");
+    expect(skill).toContain("docx");
+    expect(skill).toContain("xlsx");
+    expect(skill).toContain("pptx");
+  });
+
   test("Docker build context excludes local secrets and git metadata", async () => {
     const dockerignore = await readFile(path.join(projectRoot, ".dockerignore"), "utf8");
 
@@ -55,6 +68,62 @@ describe("deploy owner configuration", () => {
     expect(recipe).toContain('dmPolicy: "open"');
     expect(recipe).toContain("allowFrom:");
     expect(recipe).toContain('- "*"');
+  });
+
+  test("telegram ingress accepts Bot API sized PDFs and enables PDF analysis", async () => {
+    const recipe = await readFile(path.join(projectRoot, "recipe.yaml"), "utf8");
+
+    expect(recipe).toContain("pdfMaxBytesMb: 20");
+    expect(recipe).toContain("pdfMaxPages: 50");
+    expect(recipe).toContain("mediaMaxMb: 20");
+    expect(recipe).toContain("files:");
+    expect(recipe).toContain("maxBytes: 20971520");
+
+    const filesConfig = recipe.slice(recipe.indexOf("files:"));
+    const allowedMimes = filesConfig.slice(
+      filesConfig.indexOf("allowedMimes:"),
+      filesConfig.indexOf("images:") === -1 ? undefined : filesConfig.indexOf("images:"),
+    );
+    expect(allowedMimes).toContain('"text/plain"');
+    expect(allowedMimes).toContain('"application/pdf"');
+  });
+
+  test("telegram ingress accepts common text-like file attachments", async () => {
+    const recipe = await readFile(path.join(projectRoot, "recipe.yaml"), "utf8");
+    const filesConfig = recipe.slice(recipe.indexOf("files:"));
+    const allowedMimes = filesConfig.slice(
+      filesConfig.indexOf("allowedMimes:"),
+      filesConfig.indexOf("images:") === -1 ? undefined : filesConfig.indexOf("images:"),
+    );
+    const commonTextMimes = [
+      "text/plain",
+      "text/markdown",
+      "text/html",
+      "text/csv",
+      "text/tab-separated-values",
+      "application/json",
+      "application/xml",
+      "text/xml",
+      "text/yaml",
+      "application/yaml",
+      "application/x-yaml",
+      "application/javascript",
+      "text/javascript",
+    ];
+
+    for (const mime of commonTextMimes) {
+      expect(allowedMimes).toContain(`"${mime}"`);
+    }
+  });
+
+  test("media understanding accepts downloaded image attachments up to ingress limit", async () => {
+    const recipe = await readFile(path.join(projectRoot, "recipe.yaml"), "utf8");
+
+    expect(recipe).toContain("media:");
+    expect(recipe).toContain("image:");
+    expect(recipe).toContain("maxBytes: 20971520");
+    expect(recipe).toContain('"image":');
+    expect(recipe).toContain('"maxBytes": 20971520');
   });
 
   test("google meeting agent is configured beside coordinator", async () => {
